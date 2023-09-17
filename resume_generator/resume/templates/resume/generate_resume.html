@@ -1,0 +1,20 @@
+<!-- resumes/templates/resumes/generate_resume.html -->
+{% extends 'base.html' %}
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="col-md-8 col-sm-12 p-4">
+<div class="card text-center">
+  <div class="card-header">
+    Resume Form
+  </div>
+  <div class="card-body">
+    <form method="post"      >
+        <legend class="text-info">Fill in the form with your information and relax as I create the resume for you.</legend>
+        {% csrf_token %}
+        {{ form|crispy }}
+        <center><input class="btn btn-primary text-center w-50"type="submit">Generate Resume</input></center>
+    </form>
+  </div>
+</div>
+</div>
+{% endblock content %}
