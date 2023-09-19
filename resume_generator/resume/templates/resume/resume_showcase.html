@@ -1,23 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
+
+<style>
+    .pdf-font{
+        font-size:20px;
+    }
+    .pdf-header{
+        font-size:30px;
+    }
+</style>
     {% if resume %}
     <div class="container">
-        <a href="{% url 'generate_pdf' resume.id %}" class="btn btn-danger"></a>
+        <a href="{% url 'generate_pdf' resume.id 'true' %}" class="btn btn-danger"><i class="fa-solid fa-print fa-2x"></i></a>
         <div class="col-md-12 col-sm-12">
-            <h1>{{ resume.name }}'s Resume</h1>
-            <p>Name: {{ resume.name }}</p>
-            <p>Email: {{ resume.email }}</p>
-            <p>Phone: {{ resume.phone }}</p>
-            <p>Phone Number: {{resume.phone_number}}</p>
-            <p>Education: {{resume.education}}</p>
-            <p>Experience: {{resume.experience}}</p>
-            <p>Skills: {{resume.skills}}</p> 
+            <h1 class="pdf-header">{{ resume.full_name }}'s Resume</h1>
+            <p class="pdf-font"><strong>Name:</strong> <span style="font-size: 20px;">{{ resume.full_name }}</span></p>
+            <p class="pdf-font"><strong>Email:</strong> <span style="font-size: 20px;">{{ resume.email }}</span></p>
+            <p class="pdf-font"><strong>Phone:</strong> <span style="font-size: 20px;">{{ resume.phone_number }}</span></p>
+            <p class="pdf-font"><strong>Education:</strong> </p><p style="font-size: 20px;">{{resume.education|linebreaks}}</p>
+            <p class="resume-text">{{ resume.education|linebreaks }}</p>
+            <p class="pdf-font"><strong>Experience:</strong> <span style="font-size: 20px;">{{resume.experience|linebreaks}}</span></p>
+            <p class="pdf-font"><strong>Skills:</strong> <span style="font-size: 20px;">{{resume.skills|linebreaks}}</span></p>
         </div>
-    </div>  
+        {% if not pdf_rendering %}
+        <a href="{% url 'resumeUpdate' resume.id %}" class="btn btn-primary btn-lg">Update Resume</a>
+        {% endif %}
+    </div>
     {% else %}
     <div class="container text-center">
         <h3>You haven't created one yet</h3> <br>
-        <a href="resumeCreate" class="btn btn-primary btn-lg">Create Resume</a>
+        <a href="{% url 'resumeCreate' %}" class="btn btn-primary btn-lg">Create Resume</a>
     </div>
     {% endif %}
 {% endblock content %}

@@ -9,12 +9,16 @@
     <main>
         <section class="row text-center">
             <div class="col-md-6 col-sm-12">
-                <img src="{% static 'img/cv.png' %}" class="rounded-5" alt="" width="300px">
+                <img src="https://img.freepik.com/free-vector/attractive-online-curriculum-template_23-2147818854.jpg?w=740&t=st=1694974651~exp=1694975251~hmac=a50ca7a142949f51583932b56204c962a6ff2585a28f3fba2569f0e116594016" class="rounded-5" alt="" width="300px">
             </div>
             <div class="col-md-6 col-sm-12 py-5">
                 <h1>Create Your Resume</h1>
                 <p>Get started on your professional journey.</p>
-                <a href="resumeCreate" class="btn btn-primary btn-lg">Create Resume</a>
+                {% if user.resume %}
+                <a href="{% url 'resumeView' %}" class="btn btn-success btn-lg">View your Resume</a>
+                {% else %}
+                <a href="{% url 'resumeCreate' %}" class="btn btn-primary btn-lg">Create Resume</a>
+                {% endif %}
             </div>
         </section>
     </main>
