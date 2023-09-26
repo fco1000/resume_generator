@@ -14,10 +14,14 @@
             <div class="col-md-6 col-sm-12 py-5">
                 <h1>Create Your Resume</h1>
                 <p>Get started on your professional journey.</p>
-                {% if user.resume %}
-                <a href="{% url 'resumeView' %}" class="btn btn-success btn-lg">View your Resume</a>
+                {% if user.is_authenticated %}
+                    {% if resumes %}
+                        <a href="{% url 'resumeView' resumes.id %}" class="btn btn-success btn-lg">View your Resume</a>
+                    {% else %}
+                        <a href="{% url 'resumeCreate' %}" class="btn btn-primary btn-lg">Create Resume</a>
+                    {% endif %}
                 {% else %}
-                <a href="{% url 'resumeCreate' %}" class="btn btn-primary btn-lg">Create Resume</a>
+                    <a href="{% url 'resumeCreate' %}" class="btn btn-primary btn-lg">Create Resume</a>
                 {% endif %}
             </div>
         </section>

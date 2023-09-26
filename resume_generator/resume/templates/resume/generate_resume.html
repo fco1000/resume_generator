@@ -8,12 +8,21 @@
     Resume Form
   </div>
   <div class="card-body">
+    {% if user.is_authenticated %}
     <form method="post"      >
         <legend class="text-info">Fill in the form with your information and relax as I create the resume for you.</legend>
-        {% csrf_token %}
-        {{ form|crispy }}
-        <center><input class="btn btn-primary text-center w-50"type="submit">Generate Resume</input></center>
+        {% csrf_token %}        
+          {{ form2|crispy }}      
+        <center><input class="btn btn-primary text-center w-50"type="submit" value="Generate Resume"></input></center>
     </form>
+    {% else %}
+    <form method="post"      >
+        <legend class="text-info">Fill in the form with your information and relax as I create the resume for you.</legend>
+        {% csrf_token %}    
+          {{ form1|crispy }}        
+        <center><input class="btn btn-primary text-center w-50"type="submit" value="Generate Resume"></input></center>
+    </form>
+    {% endif %}
   </div>
 </div>
 </div>

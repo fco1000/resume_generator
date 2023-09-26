@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="col-md-8 col-sm-12 p-4" style="margin-bottom:150px;">
+    <h3>{{users.username}} Profile page</h3> 
+    <p>{{users.email}} </p>
+    <a href="{% url 'password_change' %}" class="btn btn-block btn-warning">Change password</a>
+</div>
+{% endblock content %}

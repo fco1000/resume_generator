@@ -45,13 +45,8 @@
 
             {% if user.is_authenticated %}
         <li class="nav-item">
-          <span class="navbar-brand mb-0 h1"><h6>{{user.username}}</h6></span>
+          <a class="nav-link active" aria-current="page" href="{% url 'user_view' %}"><strong>{{user.username}}</strong></a>
         </li>
-        <!--{% if user.resume %}-->
-        <!--<li class="nav-item">-->
-        <!--  <a class="nav-link active" aria-current="page" href="{% url 'resumeView' %}">View Resume</a>-->
-        <!--</li>-->
-        <!--{% endif %}-->
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{% url 'logout' %}">Logout</a>
         </li>
@@ -73,7 +68,7 @@
     </div>
     {% if not pdf_rendering %}
     <div class="footer">
-    <footer class="bg-dark text-light sticky-bottom" style="height: 50px; bottom: 0;">
+    <footer class="text-light sticky-bottom" style="height: 50px; bottom: 0;">
         <center><p>&copy; 2023 Resume Generator</p></center>
     </footer></div>
     {% endif %}

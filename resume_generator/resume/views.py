@@ -3,15 +3,16 @@
 from django.shortcuts import render,redirect
 from django.urls import reverse
 from django.http import HttpResponse
-from .forms import ResumeForm,UserCreationForm
+from .forms import ResumeForm,UserCreationForm,AccountsResumeForm
 from .utils import render_to_pdf
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView,LogoutView
 from django.contrib.auth.decorators import login_required
 from resume_generator import settings
-from .models import Resume
+from .models import Resume,AccountsResume
 from django.views import View
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 
 def createUser(request):
     form = UserCreationForm()
@@ -31,33 +32,71 @@ class userLoginView(LoginView):
 
     def get_success_url(self):
         return reverse('home')
+    
+def user_view(request):
+    user = request.user.username
+    users = User.objects.get(username=user)
+    return render(request, 'user/user.html', {'users':users})
 
 class userLogoutView(LoginRequiredMixin,LogoutView):
     def get_success_url(self):
         return reverse('login')
 
 def homeView(request):
-    return render(request,'resume/home.html')
+    user = request.user
+    try:
+        resumes = AccountsResume.objects.get(user=user)
+    except:
+        resumes = None
+    return render(request,'resume/home.html' ,{'resumes':resumes})
 
-@login_required
-@login_required
+
 def generate_resume(request):
-    form = ResumeForm()
-    if request.method == 'POST':
-        form = ResumeForm(request.POST)
-        if form.is_valid():
-            resume = form.save(commit=False)
-            resume.user = request.user
-            resume.save()
-            resume.html_content = form.cleaned_data.get('html_content')
+    form1 = ResumeForm()
+    form2 = AccountsResumeForm()
+    user = request.user
+    
+    if user.is_authenticated:
+        if request.method == 'POST':
+            form2 = AccountsResumeForm(request.POST)
+            if form2.is_valid():
+                Resume = form2.save(commit=False)
+                Resume.user = user
+                Resume.save()
+                Resume.html_content = form2.cleaned_data.get('html_content')
 
-            resume.save()
-            return redirect('resumeView')
+                Resume.save()
+                print(Resume.full_name)
+                return redirect('resumeView', resume_id=Resume.id)  # Specify the resume_id
     else:
-        return render(request, 'resume/generate_resume.html', {'form': form})
+        if request.method == 'POST':
+            form1 = ResumeForm(request.POST)
+            if form1.is_valid():
+                resume = form1.save(commit=False)
+                resume.html_content = form1.cleaned_data.get('html_content')
+                resume.save()
+                return redirect('resumeView', resume_id=resume.id)  # Specify the resume_id
+    return render(request, 'resume/generate_resume.html', {'form1': form1, 'form2': form2})
 
 
-@login_required(login_url=settings.LOGIN_URL)
+
+def view_resume(request, resume_id):
+    user = request.user
+    
+    if user.is_authenticated:
+        try:
+            resume = AccountsResume.objects.get(user=user)
+            return render(request, 'resume/resume_showcase.html', {'resume': resume})
+        except AccountsResume.DoesNotExist:
+            return redirect('resumeCreate')  # Redirect to create the resume for authenticated users
+    else:
+        try:
+            resume = Resume.objects.get(id=resume_id)
+            return render(request, 'resume/resume_showcase.html', {'resume': resume})
+        except Resume.DoesNotExist:
+            return redirect('resumeCreate')  # Redirect to create the resume for non-authenticated users
+    
+# @login_required(login_url=settings.LOGIN_URL)
 def update_resume(request,id):
     resume = Resume.objects.get(id=id)
     form =ResumeForm(instance=resume)
@@ -69,22 +108,18 @@ def update_resume(request,id):
     else:
         return render(request, 'resume/update_resume.html', {'form': form})
 
-def view_resume(request):
-    user = request.user
-    resume = Resume.objects.get(user=user)
-    if resume is None:
-        reverse('resumeCreate')
-    else:
-        return render(request, 'resume/resume_showcase.html',{'resume':resume})
 
 class GeneratePdf(View):
-    def get(self, request,pdf_rendering='false', *args, **kwargs):
+    def get(self, request,resume_id,pdf_rendering='false', *args, **kwargs):
         # Get the user associated with the current request
         user = request.user
-
+        
         try:
             # Fetch the user's resume data from the Resume model
-            resume = Resume.objects.get(user=user)
+            if user.is_authenticated:
+                resume = AccountsResume.objects.get(user=user)
+            else:
+                resume = Resume.objects.get(id=resume_id)
 
             pdf_rendering = pdf_rendering.lower() == 'true'
             # Create a context dictionary with resume data
@@ -102,7 +137,6 @@ class GeneratePdf(View):
                 content = f"inline; filename={filename}"
                 response['Content-Disposition'] = content
                 return response
-        except Resume.DoesNotExist:
+        except AccountsResume.DoesNotExist:
             return HttpResponse("Resume not found for the current user.", status=404)
-
-        return HttpResponse("Page Not Found", status=404)
+        
