@@ -1,5 +1,3 @@
-# Create your views here.
-# resumes/views.py
 from django.shortcuts import render,redirect
 from django.urls import reverse
 from django.http import HttpResponse
@@ -52,8 +50,8 @@ def homeView(request):
 
 
 def generate_resume(request):
-    form1 = ResumeForm()
-    form2 = AccountsResumeForm()
+    form1 = ResumeForm() # for non users
+    form2 = AccountsResumeForm() # for those who have accounts
     user = request.user
     
     if user.is_authenticated:
@@ -98,13 +96,22 @@ def view_resume(request, resume_id):
     
 # @login_required(login_url=settings.LOGIN_URL)
 def update_resume(request,id):
-    resume = Resume.objects.get(id=id)
-    form =ResumeForm(instance=resume)
+    user = request.user
+    if user.is_authenticated:
+        resume = AccountsResume.objects.get(user=user)
+        form =AccountsResumeForm(instance=resume)
+    else:
+        resume = Resume.objects.get(id=id)
+        form =ResumeForm(instance=resume)
+        
     if request.method == 'POST':
-        form = ResumeForm(request.POST,instance=resume)
+        if user.is_authenticated:
+            form = AccountsResumeForm(request.POST,instance=resume)
+        else:
+            form = ResumeForm(request.POST,instance=resume)
         if form.is_valid():
             form.save()
-            return redirect('resumeView')
+            return redirect('resumeView',resume_id=id)
     else:
         return render(request, 'resume/update_resume.html', {'form': form})
 

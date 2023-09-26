@@ -22,7 +22,11 @@
             <p class="pdf-font"><strong>Skills:</strong> <span style="font-size: 20px;">{{resume.skills|linebreaks}}</span></p>
         </div>
         {% if not pdf_rendering %}
-        <a href="{% url 'resumeUpdate' resume.id %}" class="btn btn-primary btn-lg">Update Resume</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'resumeUpdate' resume.id %}" class="btn btn-success btn-lg">Update Resume</a>
+        {% else %}
+        <a href="{% url 'resumeUpdate' resume.id %}" class="btn btn-success btn-lg">Update Resume</a>
+        {% endif %}
         {% endif %}
     </div>
     {% else %}
